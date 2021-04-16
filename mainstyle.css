@@ -1,0 +1,9 @@
+body {
+    text-align: center;
+    background: #fff;
+}
+#convas {
+    background: #fff;
+    margin-left: 10px;
+    margin-top: 10px;
+}
