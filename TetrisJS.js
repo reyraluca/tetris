@@ -10,7 +10,7 @@ let gagnePerdre = "Joueur";
 let coordonneeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0));
 let curTetrisForme = [[1, 0], [0, 1], [1, 1], [2, 1]];
 let tetrisForme = [];
-let tetrisCouleur = ['purple', 'cyan', 'blue', 'yellow', 'orange', 'green', 'red'];
+let tetrisCouleur = ['purple', 'cyan', 'white', 'yellow', 'orange', 'green', 'red'];
 let curTetrisFormCouleur;
 let gameBoardArray = [...Array(20)].map(e => Array(12).fill(0));
 let stoppedShapeArray = [...Array(20)].map(e => Array(12).fill(0));
@@ -22,28 +22,9 @@ let DIRECTION = {
 };
 let direction;
 
-class Coordonnees {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
+
 
 document.addEventListener('DOMContentLoaded', SetupCanvas);
-
-
-function CreationCoordArray() {
-    let xR = 0, yR = 19;
-    let i = 0, j = 0;
-    for (let y = 9; y <= 446; y += 23) {
-        for (let x = 11; x <= 264; x += 23) {
-            coordonneeArray[i][j] = new Coordonnees(x, y);
-            i++;
-        }
-        j++;
-        i = 0;
-    }
-}
 
 function SetupCanvas() {
     canvas = document.getElementById('canvas');
@@ -53,7 +34,7 @@ function SetupCanvas() {
 
     ctx.scale(2, 2);
 
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'blue';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = 'black';
@@ -73,20 +54,20 @@ function SetupCanvas() {
 
     ctx.fillText(niveaux.toString(), 310, 190);
 
-    ctx.fillText("GAGNER/PERDU", 300, 221);
+    ctx.fillText("GAGNER/PERDU", 300, 220);
 
-    ctx.fillText(gagnePerdre, 310, 261);
+    ctx.fillText(gagnePerdre, 310, 260);
 
-    ctx.strokeRect(300, 232, 161, 95);
+    ctx.strokeRect(300, 230, 160, 90);
 
-    ctx.fillText("CONTROLES", 300, 354);
+    ctx.fillText("CONTROLES", 300, 360);
 
-    ctx.strokeRect(300, 366, 161, 104);
+    ctx.strokeRect(300, 360, 160, 120);
 
-    ctx.font = '19px Arial';
-    ctx.fillText("← : Move gauche", 310, 388);
-    ctx.fillText("→ : Move droite", 310, 413);
-    ctx.fillText("↓ : Move bas", 310, 438);
+    ctx.font = '13px Arial';
+    ctx.fillText("← : Movement gauche", 310, 388);
+    ctx.fillText("→ : Movement droite", 310, 413);
+    ctx.fillText("↓ : Movement bas", 310, 438);
     ctx.fillText("↑ : Rotation piece", 310, 463);
 
     document.addEventListener('keydown', TouchePresse);
@@ -97,15 +78,24 @@ function SetupCanvas() {
     dessinTetrisForme();
 }
 
-function dessinTetrisForme() {
-    for (let i = 0; i < curTetrisForme.length; i++) {
-        let x = curTetrisForme[i][0] + startX;
-        let y = curTetrisForme[i][1] + startY;
-        gameBoardArray[x][y] = 1;
-        let coorX = coordonneeArray[x][y].x;
-        let coorY = coordonneeArray[x][y].y;
-        ctx.fillStyle = curTetrisFormCouleur;
-        ctx.fillRect(coorX, coorY, 21, 21);
+
+class Coordonnees {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+function CreationCoordArray() {
+    let xR = 0, yR = 15;
+    let i = 0, j = 0;
+    for (let y = 9; y <= 500; y += 23) {
+        for (let x = 11; x <= 264; x += 23) {
+            coordonneeArray[i][j] = new Coordonnees(x, y);
+            i++;
+        }
+        j++;
+        i = 0;
     }
 }
 
@@ -114,14 +104,14 @@ function TouchePresse(key) {
         // a keycode (LEFT)
         if (key.keyCode === 37) {
             direction = DIRECTION.LEFT;
-            if (!HittingTheWall() && !CollisionHorizontal()) {
+            if (!murContact() && !CollisionHorizontal()) {
                 SupprTetris();
                 startX--;
                 dessinTetrisForme();
             }
         } else if (key.keyCode === 39) {
             direction = DIRECTION.RIGHT;
-            if (!HittingTheWall() && !CollisionHorizontal()) {
+            if (!murContact() && !CollisionHorizontal()) {
                 SupprTetris();
                 startX++;
                 dessinTetrisForme();
@@ -136,7 +126,7 @@ function TouchePresse(key) {
 
 function MoveBas() {
     direction = DIRECTION.DOWN;
-    if (!CheckForVerticalCollison()) {
+    if (!collisionVertical()) {
         SupprTetris();
         startY++;
         dessinTetrisForme();
@@ -158,7 +148,19 @@ function SupprTetris() {
 
         let coorX = coordonneeArray[x][y].x;
         let coorY = coordonneeArray[x][y].y;
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(coorX, coorY, 21, 21);
+    }
+}
+
+function dessinTetrisForme() {
+    for (let i = 0; i < curTetrisForme.length; i++) {
+        let x = curTetrisForme[i][0] + startX;
+        let y = curTetrisForme[i][1] + startY;
+        gameBoardArray[x][y] = 1;
+        let coorX = coordonneeArray[x][y].x;
+        let coorY = coordonneeArray[x][y].y;
+        ctx.fillStyle = curTetrisFormCouleur;
         ctx.fillRect(coorX, coorY, 21, 21);
     }
 }
@@ -174,12 +176,12 @@ function CreationTetrisForme() {
 }
 
 function CreationTetrisForm() {
-    let randomTetromino = Math.floor(Math.random() * tetrisForme.length);
-    curTetrisForme = tetrisForme[randomTetromino];
-    curTetrisFormCouleur = tetrisCouleur[randomTetromino];
+    let pieceRandom = Math.floor(Math.random() * tetrisForme.length);
+    curTetrisForme = tetrisForme[pieceRandom];
+    curTetrisFormCouleur = tetrisCouleur[pieceRandom];
 }
 
-function HittingTheWall() {
+function murContact() {
     for (let i = 0; i < curTetrisForme.length; i++) {
         let newX = curTetrisForme[i][0] + startX;
         if (newX <= 0 && direction === DIRECTION.LEFT) {
@@ -191,7 +193,7 @@ function HittingTheWall() {
     return false;
 }
 
-function CheckForVerticalCollison() {
+function collisionVertical() {
 
     let tetrisCopy = curTetrisForme;
     let collision = false;
@@ -221,7 +223,7 @@ function CheckForVerticalCollison() {
     if (collision) {
         if (startY <= 2) {
             gagnePerdre = "Game Over";
-            ctx.fillStyle = 'white';
+            ctx.fillStyle = 'blue';
             ctx.fillRect(310, 242, 140, 30);
             ctx.fillStyle = 'black';
             ctx.fillText(gagnePerdre, 310, 261);
@@ -245,6 +247,8 @@ function CheckForVerticalCollison() {
     }
 }
 
+
+
 function CollisionHorizontal() {
     var tetrisCopie = curTetrisForme;
     var collision = false;
@@ -254,8 +258,6 @@ function CollisionHorizontal() {
         var x = square[0] + startX;
         var y = square[1] + startY;
 
-        // Move Tetromino clone square into position based
-        // on direction moving
         if (direction == DIRECTION.LEFT) {
             x--;
         } else if (direction == DIRECTION.RIGHT) {
@@ -296,14 +298,14 @@ function ligneComplet() {
                 gameBoardArray[i][y] = 0;
                 let coorX = coordonneeArray[i][y].x;
                 let coorY = coordonneeArray[i][y].y;
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = 'blue';
                 ctx.fillRect(coorX, coorY, 21, 21);
             }
         }
     }
     if (rowsToDelete > 0) {
         score += 10;
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = 'blue';
         ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = 'black';
         ctx.fillText(score.toString(), 310, 127);
@@ -331,7 +333,7 @@ function MoveAllRowsDown(rowsToDelete, startOfDeletion) {
                 stoppedShapeArray[x][i] = 0;
                 coorX = coordonneeArray[x][i].x;
                 coorY = coordonneeArray[x][i].y;
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = 'blue';
                 ctx.fillRect(coorX, coorY, 21, 21);
             }
         }
@@ -348,7 +350,7 @@ function rotationPiece() {
 
         let x = tetrisCopie[i][0];
         let y = tetrisCopie[i][1];
-        let newX = (GetLastSquareX() - y);
+        let newX = (dernierePiece() - y);
         let newY = x;
         newRotation.push([newX, newY]);
     }
@@ -366,12 +368,13 @@ function rotationPiece() {
     }
 }
 
-function GetLastSquareX() {
-    let lastX = 0;
+function dernierePiece() {
+    let pieceX = 0;
     for (let i = 0; i < curTetrisForme.length; i++) {
-        let square = curTetrisForme[i];
-        if (square[0] > lastX)
-            lastX = square[0];
+        let piece = curTetrisForme[i];
+        if (piece[0] > pieceX)
+            pieceX = piece[0];
     }
-    return lastX;
+    return pieceX;
+
 }
