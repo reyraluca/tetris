@@ -12,8 +12,8 @@ let curTetrisForme = [[1, 0], [0, 1], [1, 1], [2, 1]];
 let tetrisForme = [];
 let tetrisCouleur = ['purple', 'cyan', 'white', 'yellow', 'orange', 'green', 'red'];
 let curTetrisFormCouleur;
-let gameBoardArray = [...Array(20)].map(e => Array(12).fill(0));
-let stoppedShapeArray = [...Array(20)].map(e => Array(12).fill(0));
+let zoneJeuPiece = [...Array(20)].map(e => Array(12).fill(0));
+let finFormePiece = [...Array(20)].map(e => Array(12).fill(0));
 let DIRECTION = {
     IDLE: 0,
     DOWN: 1,
@@ -144,7 +144,7 @@ function SupprTetris() {
         let x = curTetrisForme[i][0] + startX;
         let y = curTetrisForme[i][1] + startY;
 
-        gameBoardArray[x][y] = 0;
+        zoneJeuPiece[x][y] = 0;
 
         let coorX = coordonneeArray[x][y].x;
         let coorY = coordonneeArray[x][y].y;
@@ -157,7 +157,7 @@ function dessinTetrisForme() {
     for (let i = 0; i < curTetrisForme.length; i++) {
         let x = curTetrisForme[i][0] + startX;
         let y = curTetrisForme[i][1] + startY;
-        gameBoardArray[x][y] = 1;
+        zoneJeuPiece[x][y] = 1;
         let coorX = coordonneeArray[x][y].x;
         let coorY = coordonneeArray[x][y].y;
         ctx.fillStyle = curTetrisFormCouleur;
@@ -198,17 +198,13 @@ function collisionVertical() {
     let tetrisCopy = curTetrisForme;
     let collision = false;
     for (let i = 0; i < tetrisCopy.length; i++) {
-
         let square = tetrisCopy[i];
         let x = square[0] + startX;
         let y = square[1] + startY;
-
         if (direction === DIRECTION.DOWN) {
             y++;
         }
-
-        if (typeof stoppedShapeArray[x][y + 1] === 'string') {
-
+        if (typeof finFormePiece[x][y + 1] === 'string') {
             SupprTetris();
             startY++;
             dessinTetrisForme();
@@ -232,12 +228,10 @@ function collisionVertical() {
                 let square = tetrisCopy[i];
                 let x = square[0] + startX;
                 let y = square[1] + startY;
-                stoppedShapeArray[x][y] = curTetrisFormCouleur;
+                finFormePiece[x][y] = curTetrisFormCouleur;
             }
-
             ligneComplet();
             CreationTetrisForm();
-
             direction = DIRECTION.IDLE;
             startX = 4;
             startY = 0;
@@ -252,50 +246,42 @@ function collisionVertical() {
 function CollisionHorizontal() {
     var tetrisCopie = curTetrisForme;
     var collision = false;
-
     for (var i = 0; i < tetrisCopie.length; i++) {
         var square = tetrisCopie[i];
         var x = square[0] + startX;
         var y = square[1] + startY;
-
         if (direction == DIRECTION.LEFT) {
             x--;
         } else if (direction == DIRECTION.RIGHT) {
             x++;
         }
-
-        var stoppedShapeVal = stoppedShapeArray[x][y];
-
+        var stoppedShapeVal = finFormePiece[x][y];
         if (typeof stoppedShapeVal === 'string') {
             collision = true;
             break;
         }
     }
-
     return collision;
 }
-
 function ligneComplet() {
-
-    let rowsToDelete = 0;
-    let startOfDeletion = 0;
+    let ligneSuppr = 0;
+    let suppression = 0;
     for (let y = 0; y < gBArrayHeight; y++) {
-        let completed = true;
+        let complete = true;
         for (let x = 0; x < gBArrayWidth; x++) {
-            let square = stoppedShapeArray[x][y];
-            if (square === 0 || (typeof square === 'undefined')) {
-                completed = false;
+            let square = finFormePiece[x][y];
+            if (square === 0 || (typeof square === 'indefinis')) {
+                complete = false;
                 break;
             }
         }
 
-        if (completed) {
-            if (startOfDeletion === 0) startOfDeletion = y;
-            rowsToDelete++;
-
+        if (complete) {
+            if (suppression === 0) suppression = y;
+            ligneSuppr++;
             for (let i = 0; i < gBArrayWidth; i++) {
-                stoppedShapeArray[i][y] = 0;
-                gameBoardArray[i][y] = 0;
+                finFormePiece[i][y] = 0;
+                zoneJeuPiece[i][y] = 0;
                 let coorX = coordonneeArray[i][y].x;
                 let coorY = coordonneeArray[i][y].y;
                 ctx.fillStyle = 'blue';
@@ -303,13 +289,13 @@ function ligneComplet() {
             }
         }
     }
-    if (rowsToDelete > 0) {
+    if (ligneSuppr > 0) {
         score += 10;
         ctx.fillStyle = 'blue';
         ctx.fillRect(310, 109, 140, 19);
         ctx.fillStyle = 'black';
         ctx.fillText(score.toString(), 310, 127);
-        MoveAllRowsDown(rowsToDelete, startOfDeletion);
+        MoveAllRowsDown(ligneSuppr, suppression);
     }
 }
 
@@ -317,20 +303,20 @@ function MoveAllRowsDown(rowsToDelete, startOfDeletion) {
     for (var i = startOfDeletion - 1; i >= 0; i--) {
         for (var x = 0; x < gBArrayWidth; x++) {
             var y2 = i + rowsToDelete;
-            var square = stoppedShapeArray[x][i];
-            var nextSquare = stoppedShapeArray[x][y2];
+            var square = finFormePiece[x][i];
+            var nextSquare = finFormePiece[x][y2];
 
             if (typeof square === 'string') {
                 nextSquare = square;
-                gameBoardArray[x][y2] = 1;
-                stoppedShapeArray[x][y2] = square;
+                zoneJeuPiece[x][y2] = 1;
+                finFormePiece[x][y2] = square;
                 let coorX = coordonneeArray[x][y2].x;
                 let coorY = coordonneeArray[x][y2].y;
                 ctx.fillStyle = nextSquare;
                 ctx.fillRect(coorX, coorY, 21, 21);
                 square = 0;
-                gameBoardArray[x][i] = 0;
-                stoppedShapeArray[x][i] = 0;
+                zoneJeuPiece[x][i] = 0;
+                finFormePiece[x][i] = 0;
                 coorX = coordonneeArray[x][i].x;
                 coorY = coordonneeArray[x][i].y;
                 ctx.fillStyle = 'blue';
